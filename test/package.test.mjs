@@ -26,6 +26,7 @@ import {
   PokemonDropRangeSchema,
   PokemonFormDetailResponseSchema,
   PokemonFormDetailResponseSchema as PokemonFormDetailResponseSchemaFromPokemon,
+  PokemonFormGameplaySchema,
   PokemonFormLightingSchema,
   PokemonMoveRefSchema,
   PokemonSpawnConditionSchema,
@@ -37,6 +38,7 @@ import {
   PokemonSpawnSchema,
   PokemonSpeciesDetailResponseSchema,
   PokemonSpeciesDetailResponseSchema as PokemonSpeciesDetailResponseSchemaFromPokemon,
+  PokemonSpeciesGameplaySchema,
 } from "@aglaea/contract/pokemon";
 import {
   AbilityDetailResponseSchema,
@@ -927,6 +929,7 @@ const enrichedFormDetail = {
   aspectCombos: [{ comboIndex: 0, aspects: [aspectRef] }],
   behaviour: { data: { custom: "opaque" } },
   spawns: [spawn],
+  gameplay: null,
   species: {
     id: 1,
     name: "Bulbasaur",
@@ -952,6 +955,7 @@ const enrichedFormDetail = {
     hitbox: { width: 0.7, height: 0.7, fixed: false },
     lighting: { lightLevel: 0, liquidGlowMode: null },
     riding: null,
+    gameplay: null,
   },
 };
 
@@ -1011,6 +1015,7 @@ const baseSpecies = {
   hitbox: { width: 0.7, height: 0.7, fixed: false },
   lighting: { lightLevel: 0, liquidGlowMode: null },
   riding: null,
+  gameplay: null,
 };
 
 const formForSpeciesDetail = ({ species, ...form }) => form;
@@ -1155,6 +1160,190 @@ test("PokemonFormDetailResponseSchema rejects invalid form lighting", () => {
   };
   assert.equal(
     Value.Check(PokemonFormDetailResponseSchema, nonNumberLightLevel),
+    false,
+  );
+});
+
+test("include names accept the gameplay relation", () => {
+  assert.equal(PokemonRelationIncludeNames.includes("gameplay"), true);
+  assert.equal(PokemonIncludeNames.includes("gameplay"), true);
+  assert.equal(
+    Value.Check(PokemonRelationIncludeNameSchema, "gameplay"),
+    true,
+  );
+  assert.equal(Value.Check(PokemonIncludeNameSchema, "gameplay"), true);
+});
+
+test("PokemonSpeciesGameplaySchema accepts null/boolean battleOnly and dynamaxBlocked", () => {
+  assert.equal(
+    Value.Check(PokemonSpeciesGameplaySchema, {
+      battleOnly: null,
+      dynamaxBlocked: null,
+    }),
+    true,
+  );
+  assert.equal(
+    Value.Check(PokemonSpeciesGameplaySchema, {
+      battleOnly: true,
+      dynamaxBlocked: false,
+    }),
+    true,
+  );
+  assert.equal(
+    Value.Check(PokemonSpeciesGameplaySchema, {
+      battleOnly: null,
+      dynamaxBlocked: true,
+    }),
+    true,
+  );
+});
+
+test("PokemonSpeciesGameplaySchema rejects string boolean values", () => {
+  assert.equal(
+    Value.Check(PokemonSpeciesGameplaySchema, {
+      battleOnly: "true",
+      dynamaxBlocked: null,
+    }),
+    false,
+  );
+  assert.equal(
+    Value.Check(PokemonSpeciesGameplaySchema, {
+      battleOnly: null,
+      dynamaxBlocked: "false",
+    }),
+    false,
+  );
+});
+
+test("PokemonFormGameplaySchema accepts null/boolean dynamaxBlocked", () => {
+  assert.equal(
+    Value.Check(PokemonFormGameplaySchema, { dynamaxBlocked: null }),
+    true,
+  );
+  assert.equal(
+    Value.Check(PokemonFormGameplaySchema, { dynamaxBlocked: true }),
+    true,
+  );
+  assert.equal(
+    Value.Check(PokemonFormGameplaySchema, { dynamaxBlocked: false }),
+    true,
+  );
+});
+
+test("PokemonFormGameplaySchema rejects string boolean values", () => {
+  assert.equal(
+    Value.Check(PokemonFormGameplaySchema, { dynamaxBlocked: "true" }),
+    false,
+  );
+  assert.equal(
+    Value.Check(PokemonFormGameplaySchema, { dynamaxBlocked: "no" }),
+    false,
+  );
+});
+
+test("PokemonSpeciesDetailResponseSchema accepts gameplay with null/boolean values", () => {
+  const speciesDetail = {
+    ...baseSpecies,
+    gameplay: { battleOnly: null, dynamaxBlocked: null },
+    forms: [],
+  };
+  assert.equal(
+    Value.Check(PokemonSpeciesDetailResponseSchema, speciesDetail),
+    true,
+  );
+
+  const speciesDetailBlocked = {
+    ...baseSpecies,
+    gameplay: { battleOnly: true, dynamaxBlocked: false },
+    forms: [],
+  };
+  assert.equal(
+    Value.Check(PokemonSpeciesDetailResponseSchema, speciesDetailBlocked),
+    true,
+  );
+});
+
+test("PokemonSpeciesDetailResponseSchema accepts nullable gameplay", () => {
+  const speciesDetail = {
+    ...baseSpecies,
+    gameplay: null,
+    forms: [],
+  };
+  assert.equal(
+    Value.Check(PokemonSpeciesDetailResponseSchema, speciesDetail),
+    true,
+  );
+});
+
+test("PokemonSpeciesDetailResponseSchema rejects invalid gameplay shapes", () => {
+  const stringBooleans = {
+    ...baseSpecies,
+    gameplay: { battleOnly: "true", dynamaxBlocked: null },
+    forms: [],
+  };
+  assert.equal(
+    Value.Check(PokemonSpeciesDetailResponseSchema, stringBooleans),
+    false,
+  );
+
+  const missingDynamaxBlocked = {
+    ...baseSpecies,
+    gameplay: { battleOnly: null },
+    forms: [],
+  };
+  assert.equal(
+    Value.Check(PokemonSpeciesDetailResponseSchema, missingDynamaxBlocked),
+    false,
+  );
+});
+
+test("PokemonFormDetailResponseSchema accepts gameplay with null/boolean values", () => {
+  const formWithGameplay = {
+    ...enrichedFormDetail,
+    gameplay: { dynamaxBlocked: null },
+  };
+  assert.equal(
+    Value.Check(PokemonFormDetailResponseSchema, formWithGameplay),
+    true,
+  );
+
+  const formWithBlockedGameplay = {
+    ...enrichedFormDetail,
+    gameplay: { dynamaxBlocked: true },
+  };
+  assert.equal(
+    Value.Check(PokemonFormDetailResponseSchema, formWithBlockedGameplay),
+    true,
+  );
+});
+
+test("PokemonFormDetailResponseSchema accepts nullable gameplay", () => {
+  const formWithNullGameplay = {
+    ...enrichedFormDetail,
+    gameplay: null,
+  };
+  assert.equal(
+    Value.Check(PokemonFormDetailResponseSchema, formWithNullGameplay),
+    true,
+  );
+});
+
+test("PokemonFormDetailResponseSchema rejects invalid form gameplay shapes", () => {
+  const stringBoolean = {
+    ...enrichedFormDetail,
+    gameplay: { dynamaxBlocked: "true" },
+  };
+  assert.equal(
+    Value.Check(PokemonFormDetailResponseSchema, stringBoolean),
+    false,
+  );
+
+  const missingDynamaxBlocked = {
+    ...enrichedFormDetail,
+    gameplay: {},
+  };
+  assert.equal(
+    Value.Check(PokemonFormDetailResponseSchema, missingDynamaxBlocked),
     false,
   );
 });

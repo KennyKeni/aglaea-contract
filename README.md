@@ -97,7 +97,7 @@ import {
 const include = "forms" satisfies PokemonIncludeName;
 ```
 
-- `PokemonRelationIncludeNames` — readonly tuple of the relation flag names Herta recognizes: `forms`, `types`, `abilities`, `moves`, `labels`, `aspects`, `drops`, `eggGroups`, `experienceGroup`, `hitboxes`, `lighting`, `riding`, `behaviour`, `spawns`.
+- `PokemonRelationIncludeNames` — readonly tuple of the relation flag names Herta recognizes: `forms`, `types`, `abilities`, `moves`, `labels`, `aspects`, `drops`, `eggGroups`, `experienceGroup`, `hitboxes`, `lighting`, `riding`, `behaviour`, `spawns`, `gameplay`.
 - `PokemonIncludeNames` — the relation names plus `*`.
 - `PokemonRelationIncludeNameSchema` / `PokemonIncludeNameSchema` — TypeBox literal-union schemas for validating known include names. They reject unknown names so callers can fail fast when validating a single, parsed include name.
 
@@ -196,4 +196,5 @@ This first read-domain slice is intentionally narrow. Query schemas, include voc
 - Drops are item refs `{ id, name }`; ranged drops keep `percentage`.
 - Embedded spawn refs (`bucket`, `positionType`, and spawn-condition `biomes`/`biomeTags`/`timeRanges`/`moonPhases`) require a `slug`. Use `PokemonNamedRefSchema`-shaped refs `{ id, name, slug }`; refs missing `slug` fail validation.
 - `PokemonSpeciesRidingSchema` and `PokemonBehaviourSchema` remain opaque `{ data: unknown }` envelopes for now; they require `data` but do not model nested keys yet.
-- `PokemonSpeciesDetailResponseSchema` accepts alternate forms plus nullable gameplay/visual sections (`image`, `hitbox`, `lighting`, `riding` may be `null`). `PokemonFormSchema.lighting` (and therefore `PokemonFormDetailResponseSchema`) accepts a nullable `PokemonFormLightingSchema` (`{ lightLevel: number, liquidGlowMode: string | null }`) mirroring the species lighting shape; `null` means the form has no form-specific lighting and should fall back to species `lighting`.
+- `PokemonSpeciesDetailResponseSchema` accepts alternate forms plus nullable gameplay/visual sections (`image`, `hitbox`, `lighting`, `riding`, `gameplay` may be `null`). `PokemonFormSchema.lighting` (and therefore `PokemonFormDetailResponseSchema`) accepts a nullable `PokemonFormLightingSchema` (`{ lightLevel: number, liquidGlowMode: string | null }`) mirroring the species lighting shape; `null` means the form has no form-specific lighting and should fall back to species `lighting`.
+- `PokemonSpeciesGameplaySchema` models species gameplay profile flags (`battleOnly`, `dynamaxBlocked`), both `boolean | null`. `PokemonFormGameplaySchema` models form gameplay profile flags (`dynamaxBlocked`, `boolean | null`). Both are surfaced as a nullable `gameplay` section on species/form detail responses and toggled by the `gameplay` include name.
