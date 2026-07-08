@@ -14,6 +14,9 @@ import {
   PokemonSpeciesListResponseSchema,
   PokemonSpeciesListQuerySchema,
   PokemonSpeciesDetailQuerySchema,
+  PokemonFormDetailResponseSchema as RootPokemonFormDetailResponseSchema,
+  PokemonSpawnReferenceSchema as RootPokemonSpawnReferenceSchema,
+  PokemonSpeciesDetailResponseSchema as RootPokemonSpeciesDetailResponseSchema,
   AbilityListResponseSchema as RootAbilityListResponseSchema,
   MoveDetailResponseSchema as RootMoveDetailResponseSchema,
   ItemListResponseSchema as RootItemListResponseSchema,
@@ -21,13 +24,17 @@ import {
 import {
   PokemonDropRangeSchema,
   PokemonFormDetailResponseSchema,
+  PokemonFormDetailResponseSchema as PokemonFormDetailResponseSchemaFromPokemon,
   PokemonMoveRefSchema,
   PokemonSpawnConditionSchema,
   PokemonSpawnConditionLureSchema,
   PokemonSpawnConditionPositionSchema,
   PokemonSpawnConditionSkySchema,
   PokemonSpawnConditionWeatherSchema,
+  PokemonSpawnReferenceSchema,
+  PokemonSpawnSchema,
   PokemonSpeciesDetailResponseSchema,
+  PokemonSpeciesDetailResponseSchema as PokemonSpeciesDetailResponseSchemaFromPokemon,
 } from "@aglaea/contract/pokemon";
 import {
   AbilityDetailResponseSchema,
@@ -780,5 +787,296 @@ test("AbilitySchema rejects a form reference missing speciesId when forms are pr
   assert.equal(
     Value.Check(AbilitySchema, { ...abilityDetail, forms: [validForm] }),
     true,
+  );
+});
+
+test("PokemonSpawnReferenceSchema now requires slug on embedded spawn refs", () => {
+  const validRef = { id: 1, name: "plains", slug: "plains" };
+  assert.equal(Value.Check(PokemonSpawnReferenceSchema, validRef), true);
+
+  const { slug, ...refWithoutSlug } = validRef;
+  assert.equal(Value.Check(PokemonSpawnReferenceSchema, refWithoutSlug), false);
+});
+
+test("root and @aglaea/contract/pokemon expose the enriched Pokemon detail schemas", () => {
+  assert.equal(
+    RootPokemonFormDetailResponseSchema,
+    PokemonFormDetailResponseSchemaFromPokemon,
+  );
+  assert.equal(
+    RootPokemonSpeciesDetailResponseSchema,
+    PokemonSpeciesDetailResponseSchemaFromPokemon,
+  );
+  assert.equal(
+    RootPokemonSpawnReferenceSchema,
+    PokemonSpawnReferenceSchema,
+  );
+
+  assert.equal(Value.Check(PokemonFormDetailResponseSchema, {}), false);
+  assert.equal(Value.Check(PokemonSpeciesDetailResponseSchema, {}), false);
+});
+
+const aspectChoice = {
+  id: 1,
+  slug: "gender",
+  name: "Gender",
+  value: "male",
+};
+
+const aspectRef = { id: 1, name: "Male", slug: "male" };
+
+const dropPercentage = {
+  item: { id: 109, name: "glow-ink-sac" },
+  percentage: 10,
+};
+
+const dropRange = {
+  item: { id: 109, name: "glow-ink-sac" },
+  percentage: 10,
+  quantityMin: 1,
+  quantityMax: 3,
+};
+
+const namedSpawnRef = { id: 1, name: "plains", slug: "plains" };
+
+const namedBiomeTagRef = { id: 2, name: "overworld", slug: "overworld" };
+const namedTimeRangeRef = { id: 3, name: "day", slug: "day" };
+const namedMoonPhaseRef = { id: 4, name: "full", slug: "full" };
+
+const spawnCondition = {
+  id: 1,
+  type: "surface",
+  multiplier: 1.5,
+  biomes: [namedSpawnRef],
+  biomeTags: [namedBiomeTagRef],
+  timeRanges: [namedTimeRangeRef],
+  moonPhases: [namedMoonPhaseRef],
+  weather: { isRaining: false, isThundering: null },
+  sky: { canSeeSky: true, minSkyLight: 8, maxSkyLight: 15 },
+  position: { minY: 60, maxY: null },
+  lure: null,
+};
+
+const spawn = {
+  id: 1,
+  bucket: namedSpawnRef,
+  positionType: namedSpawnRef,
+  weight: 0.5,
+  levelMin: 5,
+  levelMax: 15,
+  conditions: [spawnCondition],
+};
+
+const formMove = {
+  move: {
+    ...baseMoveRef,
+    accuracy: 100,
+  },
+  method: { id: 1, name: "Level Up", slug: "level-up" },
+  level: 1,
+};
+
+const formType = {
+  type: { id: 12, name: "Grass", slug: "grass" },
+  slot: 1,
+};
+
+const formAbility = {
+  ability: { id: 65, name: "Overgrow", slug: "overgrow" },
+  slot: { id: 1, name: "Ability 1", slug: "ability-1" },
+};
+
+const enrichedFormDetail = {
+  id: 1,
+  name: "Normal",
+  fullName: "Bulbasaur",
+  slug: "bulbasaur",
+  description: "A seed Pokemon.",
+  generation: 1,
+  image: { id: "bulbasaur", url: "https://example.com/bulbasaur.png" },
+  height: 0.7,
+  weight: 6.9,
+  overrides: null,
+  baseHp: 45,
+  baseAttack: 49,
+  baseDefence: 49,
+  baseSpecialAttack: 65,
+  baseSpecialDefence: 65,
+  baseSpeed: 45,
+  baseExperienceYield: 64,
+  evHp: 1,
+  evAttack: 0,
+  evDefence: 0,
+  evSpecialAttack: 0,
+  evSpecialDefence: 0,
+  evSpeed: 0,
+  labels: [{ id: 1, name: "Starter", slug: "starter" }],
+  aspectChoices: [aspectChoice],
+  types: [formType],
+  abilities: [formAbility],
+  moves: [formMove],
+  hitbox: { width: 0.7, height: 0.7, fixed: false },
+  drops: {
+    amount: 1,
+    percentages: [dropPercentage],
+    ranges: [dropRange],
+  },
+  aspectCombos: [{ comboIndex: 0, aspects: [aspectRef] }],
+  behaviour: { data: { custom: "opaque" } },
+  spawns: [spawn],
+  species: {
+    id: 1,
+    name: "Bulbasaur",
+    slug: "bulbasaur",
+    description: "A seed Pokemon.",
+    generation: 1,
+    catchRate: 45,
+    baseFriendship: 70,
+    eggCycles: 20,
+    maleRatio: 0.875,
+    baseScale: 1.0,
+    image: { id: "bulbasaur", url: "https://example.com/bulbasaur.png" },
+    experienceGroup: {
+      id: 1,
+      slug: "medium-slow",
+      name: "Medium Slow",
+      formula: "5n^3/2 - 100n^2 + 750n",
+    },
+    eggGroups: [
+      { id: 1, name: "Monster", slug: "monster" },
+      { id: 2, name: "Grass", slug: "grass" },
+    ],
+    hitbox: { width: 0.7, height: 0.7, fixed: false },
+    lighting: { lightLevel: 0, liquidGlowMode: null },
+    riding: null,
+  },
+};
+
+test("PokemonFormDetailResponseSchema accepts an enriched form detail payload", () => {
+  assert.equal(
+    Value.Check(PokemonFormDetailResponseSchema, enrichedFormDetail),
+    true,
+  );
+});
+
+test("PokemonFormDetailResponseSchema rejects spawn refs missing slug", () => {
+  const { slug, ...refWithoutSlug } = namedSpawnRef;
+  const brokenSpawn = { ...spawn, bucket: refWithoutSlug };
+  const brokenForm = {
+    ...enrichedFormDetail,
+    spawns: [brokenSpawn],
+  };
+  assert.equal(
+    Value.Check(PokemonFormDetailResponseSchema, brokenForm),
+    false,
+  );
+});
+
+test("PokemonFormDetailResponseSchema accepts null behaviour/drops/hitbox/image", () => {
+  const minimalForm = {
+    ...enrichedFormDetail,
+    image: null,
+    hitbox: null,
+    drops: null,
+    behaviour: null,
+  };
+  assert.equal(Value.Check(PokemonFormDetailResponseSchema, minimalForm), true);
+});
+
+const baseSpecies = {
+  id: 1,
+  name: "Bulbasaur",
+  slug: "bulbasaur",
+  description: "A seed Pokemon.",
+  generation: 1,
+  catchRate: 45,
+  baseFriendship: 70,
+  eggCycles: 20,
+  maleRatio: 0.875,
+  baseScale: 1.0,
+  image: { id: "bulbasaur", url: "https://example.com/bulbasaur.png" },
+  experienceGroup: {
+    id: 1,
+    slug: "medium-slow",
+    name: "Medium Slow",
+    formula: "5n^3/2 - 100n^2 + 750n",
+  },
+  eggGroups: [
+    { id: 1, name: "Monster", slug: "monster" },
+    { id: 2, name: "Grass", slug: "grass" },
+  ],
+  hitbox: { width: 0.7, height: 0.7, fixed: false },
+  lighting: { lightLevel: 0, liquidGlowMode: null },
+  riding: null,
+};
+
+const formForSpeciesDetail = ({ species, ...form }) => form;
+const primarySpeciesForm = formForSpeciesDetail(enrichedFormDetail);
+
+const alternateForm = {
+  ...primarySpeciesForm,
+  id: 2,
+  name: "Mega",
+  fullName: "Mega Bulbasaur",
+  slug: "mega-bulbasaur",
+};
+
+test("PokemonSpeciesDetailResponseSchema accepts alternate forms", () => {
+  const speciesDetail = {
+    ...baseSpecies,
+    forms: [primarySpeciesForm, alternateForm],
+  };
+  assert.equal(
+    Value.Check(PokemonSpeciesDetailResponseSchema, speciesDetail),
+    true,
+  );
+});
+
+test("PokemonSpeciesDetailResponseSchema accepts nullable gameplay and visual sections", () => {
+  const speciesDetail = {
+    ...baseSpecies,
+    image: null,
+    hitbox: null,
+    lighting: null,
+    riding: { data: { custom: "opaque" } },
+    forms: [],
+  };
+  assert.equal(
+    Value.Check(PokemonSpeciesDetailResponseSchema, speciesDetail),
+    true,
+  );
+});
+
+test("PokemonSpeciesDetailResponseSchema requires a riding data envelope", () => {
+  const speciesDetail = {
+    ...baseSpecies,
+    riding: { unexpectedOnly: true },
+    forms: [],
+  };
+  assert.equal(
+    Value.Check(PokemonSpeciesDetailResponseSchema, speciesDetail),
+    false,
+  );
+});
+
+test("PokemonSpawnSchema validates a full spawn with named refs", () => {
+  assert.equal(Value.Check(PokemonSpawnSchema, spawn), true);
+  assert.equal(
+    Value.Check(PokemonSpawnSchema, {
+      ...spawn,
+      bucket: { id: 1, name: "plains" },
+    }),
+    false,
+  );
+});
+
+test("PokemonSpawnConditionSchema rejects condition refs missing slug", () => {
+  assert.equal(Value.Check(PokemonSpawnConditionSchema, spawnCondition), true);
+  assert.equal(
+    Value.Check(PokemonSpawnConditionSchema, {
+      ...spawnCondition,
+      biomes: [{ id: 1, name: "plains" }],
+    }),
+    false,
   );
 });
