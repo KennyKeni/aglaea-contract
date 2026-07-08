@@ -85,6 +85,12 @@ export const PokemonSpeciesRidingSchema = Type.Object({
 
 export type PokemonSpeciesRiding = Static<typeof PokemonSpeciesRidingSchema>;
 
+export const PokemonFormRidingSchema = Type.Object({
+  data: Type.Unknown(),
+});
+
+export type PokemonFormRiding = Static<typeof PokemonFormRidingSchema>;
+
 export const PokemonSpeciesGameplaySchema = Type.Object({
   battleOnly: Nullable(Type.Boolean()),
   dynamaxBlocked: Nullable(Type.Boolean()),
@@ -326,6 +332,7 @@ export const PokemonFormSchema = Type.Object({
   aspectCombos: Type.Array(PokemonFormAspectComboSchema),
   behaviour: Nullable(PokemonBehaviourSchema),
   spawns: Type.Array(PokemonSpawnSchema),
+  riding: Nullable(PokemonFormRidingSchema),
   gameplay: Nullable(PokemonFormGameplaySchema),
 });
 

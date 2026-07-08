@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { Value } from "@sinclair/typebox/value";
 import {
+  PokemonFormRidingSchema as RootPokemonFormRidingSchema,
   PokemonFormLightingSchema as RootPokemonFormLightingSchema,
   PokemonFormListResponseSchema,
   PokemonFormListQuerySchema,
@@ -28,6 +29,7 @@ import {
   PokemonFormDetailResponseSchema as PokemonFormDetailResponseSchemaFromPokemon,
   PokemonFormGameplaySchema,
   PokemonFormLightingSchema,
+  PokemonFormRidingSchema,
   PokemonMoveRefSchema,
   PokemonSpawnConditionSchema,
   PokemonSpawnConditionLureSchema,
@@ -929,6 +931,7 @@ const enrichedFormDetail = {
   aspectCombos: [{ comboIndex: 0, aspects: [aspectRef] }],
   behaviour: { data: { custom: "opaque" } },
   spawns: [spawn],
+  riding: null,
   gameplay: null,
   species: {
     id: 1,
@@ -1063,6 +1066,69 @@ test("PokemonSpeciesDetailResponseSchema requires a riding data envelope", () =>
   };
   assert.equal(
     Value.Check(PokemonSpeciesDetailResponseSchema, speciesDetail),
+    false,
+  );
+});
+
+test("PokemonFormRidingSchema is exported from root and ./pokemon", () => {
+  assert.equal(RootPokemonFormRidingSchema, PokemonFormRidingSchema);
+  assert.equal(PokemonFormRidingSchema.type, "object");
+  assert.equal(
+    Value.Check(PokemonFormRidingSchema, { data: { custom: "opaque" } }),
+    true,
+  );
+  assert.equal(Value.Check(PokemonFormRidingSchema, null), false);
+  assert.equal(
+    Value.Check(PokemonFormRidingSchema, { unexpectedOnly: true }),
+    false,
+  );
+});
+
+test("PokemonFormDetailResponseSchema accepts form riding with a data envelope", () => {
+  const formWithRiding = {
+    ...enrichedFormDetail,
+    riding: { data: { behaviours: { LAND: { key: "cobblemon:land/horse" } } } },
+  };
+  assert.equal(
+    Value.Check(PokemonFormDetailResponseSchema, formWithRiding),
+    true,
+  );
+});
+
+test("PokemonFormListResponseSchema accepts form riding with a data envelope", () => {
+  const formWithRiding = {
+    ...enrichedFormDetail,
+    riding: { data: { behaviours: { LAND: { key: "cobblemon:land/horse" } } } },
+  };
+  assert.equal(
+    Value.Check(PokemonFormListResponseSchema, {
+      data: [formWithRiding],
+      total: 1,
+      limit: 20,
+      offset: 0,
+    }),
+    true,
+  );
+});
+
+test("PokemonFormDetailResponseSchema accepts nullable form riding", () => {
+  const formWithNullRiding = {
+    ...enrichedFormDetail,
+    riding: null,
+  };
+  assert.equal(
+    Value.Check(PokemonFormDetailResponseSchema, formWithNullRiding),
+    true,
+  );
+});
+
+test("PokemonFormDetailResponseSchema rejects form riding without a data envelope", () => {
+  const formWithInvalidRiding = {
+    ...enrichedFormDetail,
+    riding: { unexpectedOnly: true },
+  };
+  assert.equal(
+    Value.Check(PokemonFormDetailResponseSchema, formWithInvalidRiding),
     false,
   );
 });
