@@ -85,6 +85,21 @@ export const PokemonSpeciesRidingSchema = Type.Object({
 
 export type PokemonSpeciesRiding = Static<typeof PokemonSpeciesRidingSchema>;
 
+export const PokemonSpeciesGameplaySchema = Type.Object({
+  battleOnly: Nullable(Type.Boolean()),
+  dynamaxBlocked: Nullable(Type.Boolean()),
+});
+
+export type PokemonSpeciesGameplay = Static<
+  typeof PokemonSpeciesGameplaySchema
+>;
+
+export const PokemonFormGameplaySchema = Type.Object({
+  dynamaxBlocked: Nullable(Type.Boolean()),
+});
+
+export type PokemonFormGameplay = Static<typeof PokemonFormGameplaySchema>;
+
 export const PokemonSpeciesSchema = Type.Object({
   id: Type.Integer(),
   name: Type.String(),
@@ -102,6 +117,7 @@ export const PokemonSpeciesSchema = Type.Object({
   hitbox: Nullable(PokemonSpeciesHitboxSchema),
   lighting: Nullable(PokemonSpeciesLightingSchema),
   riding: Nullable(PokemonSpeciesRidingSchema),
+  gameplay: Nullable(PokemonSpeciesGameplaySchema),
 });
 
 export type PokemonSpecies = Static<typeof PokemonSpeciesSchema>;
@@ -310,6 +326,7 @@ export const PokemonFormSchema = Type.Object({
   aspectCombos: Type.Array(PokemonFormAspectComboSchema),
   behaviour: Nullable(PokemonBehaviourSchema),
   spawns: Type.Array(PokemonSpawnSchema),
+  gameplay: Nullable(PokemonFormGameplaySchema),
 });
 
 export type PokemonForm = Static<typeof PokemonFormSchema>;
@@ -371,6 +388,7 @@ export const PokemonRelationIncludeNames = [
   "riding",
   "behaviour",
   "spawns",
+  "gameplay",
 ] as const;
 
 export type PokemonRelationIncludeName =
