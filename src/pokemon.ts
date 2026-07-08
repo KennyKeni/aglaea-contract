@@ -34,7 +34,7 @@ export const PokemonMoveRefSchema = Type.Object({
   type: PokemonTypeRefSchema,
   category: PokemonMoveCategoryRefSchema,
   power: Nullable(Type.Integer()),
-  accuracy: Type.Union([Type.Number(), Type.Boolean(), Type.Null()]),
+  accuracy: Nullable(Type.Number()),
   pp: Nullable(Type.Integer()),
 });
 
@@ -207,20 +207,41 @@ export const PokemonSpawnReferenceSchema = Type.Object({
 export type PokemonSpawnReference = Static<typeof PokemonSpawnReferenceSchema>;
 
 export const PokemonSpawnConditionWeatherSchema = Type.Object({
-  name: Type.String(),
+  isRaining: Nullable(Type.Boolean()),
+  isThundering: Nullable(Type.Boolean()),
 });
+
+export type PokemonSpawnConditionWeather = Static<
+  typeof PokemonSpawnConditionWeatherSchema
+>;
 
 export const PokemonSpawnConditionSkySchema = Type.Object({
-  name: Type.String(),
+  canSeeSky: Nullable(Type.Boolean()),
+  minSkyLight: Nullable(Type.Number()),
+  maxSkyLight: Nullable(Type.Number()),
 });
+
+export type PokemonSpawnConditionSky = Static<
+  typeof PokemonSpawnConditionSkySchema
+>;
 
 export const PokemonSpawnConditionPositionSchema = Type.Object({
-  name: Type.String(),
+  minY: Nullable(Type.Number()),
+  maxY: Nullable(Type.Number()),
 });
 
+export type PokemonSpawnConditionPosition = Static<
+  typeof PokemonSpawnConditionPositionSchema
+>;
+
 export const PokemonSpawnConditionLureSchema = Type.Object({
-  name: Type.String(),
+  minLureLevel: Nullable(Type.Number()),
+  maxLureLevel: Nullable(Type.Number()),
 });
+
+export type PokemonSpawnConditionLure = Static<
+  typeof PokemonSpawnConditionLureSchema
+>;
 
 export const PokemonSpawnConditionSchema = Type.Object({
   id: Type.Integer(),
@@ -230,10 +251,10 @@ export const PokemonSpawnConditionSchema = Type.Object({
   biomeTags: Type.Array(PokemonSpawnReferenceSchema),
   timeRanges: Type.Array(PokemonSpawnReferenceSchema),
   moonPhases: Type.Array(PokemonSpawnReferenceSchema),
-  weather: Nullable(Type.Unknown()),
-  sky: Nullable(Type.Unknown()),
-  position: Nullable(Type.Unknown()),
-  lure: Nullable(Type.Unknown()),
+  weather: Nullable(PokemonSpawnConditionWeatherSchema),
+  sky: Nullable(PokemonSpawnConditionSkySchema),
+  position: Nullable(PokemonSpawnConditionPositionSchema),
+  lure: Nullable(PokemonSpawnConditionLureSchema),
 });
 
 export type PokemonSpawnCondition = Static<typeof PokemonSpawnConditionSchema>;
@@ -329,3 +350,314 @@ export type PokemonSpeciesDetailResponse = Static<typeof PokemonSpeciesDetailRes
 
 export const PokemonFormDetailResponseSchema = PokemonFormWithSpeciesSchema;
 export type PokemonFormDetailResponse = Static<typeof PokemonFormDetailResponseSchema>;
+
+export const PokemonRelationIncludeNames = [
+  "forms",
+  "types",
+  "abilities",
+  "moves",
+  "labels",
+  "aspects",
+  "drops",
+  "eggGroups",
+  "experienceGroup",
+  "hitboxes",
+  "lighting",
+  "riding",
+  "behaviour",
+  "spawns",
+] as const;
+
+export type PokemonRelationIncludeName =
+  (typeof PokemonRelationIncludeNames)[number];
+
+export const PokemonRelationIncludeNameSchema = Type.Union(
+  PokemonRelationIncludeNames.map((name) => Type.Literal(name)),
+);
+
+export const PokemonIncludeNames = [
+  ...PokemonRelationIncludeNames,
+  "*",
+] as const;
+
+export type PokemonIncludeName = (typeof PokemonIncludeNames)[number];
+
+export const PokemonIncludeNameSchema = Type.Union(
+  PokemonIncludeNames.map((name) => Type.Literal(name)),
+);
+
+const StringOrStringArray = Type.Union([Type.String(), Type.Array(Type.String())]);
+
+const IdOrSlug = Type.Union([Type.Integer(), Type.String()]);
+const IdOrSlugList = Type.Union([
+  Type.Integer(),
+  Type.String(),
+  Type.Array(Type.Union([Type.Integer(), Type.String()])),
+]);
+
+const NumericValue = Type.Union([Type.Integer(), Type.Number(), Type.String()]);
+const NumericList = Type.Union([
+  NumericValue,
+  Type.Array(NumericValue),
+]);
+
+const StatBound = NumericValue;
+
+export const PokemonSearchQueryKeys = [
+  "include",
+  "name",
+  "speciesIds",
+  "speciesId",
+  "speciesSlugs",
+  "speciesSlug",
+  "species",
+  "formIds",
+  "formSlugs",
+  "typeIds",
+  "typeSlugs",
+  "abilityIds",
+  "abilitySlugs",
+  "moveIds",
+  "moveSlugs",
+  "eggGroupIds",
+  "eggGroupSlugs",
+  "labelIds",
+  "labelSlugs",
+  "dropItemIds",
+  "dropItemSlugs",
+  "biomeIds",
+  "biomeSlugs",
+  "biomeTagIds",
+  "biomeTagSlugs",
+  "spawnBucketIds",
+  "spawnBucketSlugs",
+  "speciesGeneration",
+  "generation",
+  "speciesGenerations",
+  "generations",
+  "formGeneration",
+  "formGenerations",
+  "hasForm.typeIds",
+  "hasForm.typeId",
+  "hasForm.typeSlugs",
+  "hasForm.type",
+  "hasForm.types",
+  "hasForm.abilityIds",
+  "hasForm.abilityId",
+  "hasForm.abilitySlugs",
+  "hasForm.ability",
+  "hasForm.abilities",
+  "hasForm.moveIds",
+  "hasForm.moveId",
+  "hasForm.moveSlugs",
+  "hasForm.move",
+  "hasForm.moves",
+  "hasForm.labelIds",
+  "hasForm.labelId",
+  "hasForm.labelSlugs",
+  "hasForm.label",
+  "hasForm.labels",
+  "hasForm.dropItemIds",
+  "hasForm.dropItemId",
+  "hasForm.dropItemSlugs",
+  "hasForm.dropItem",
+  "hasForm.dropItems",
+  "hasForm.biomeIds",
+  "hasForm.biomeId",
+  "hasForm.biomeSlugs",
+  "hasForm.biome",
+  "hasForm.biomes",
+  "hasForm.biomeTagIds",
+  "hasForm.biomeTagId",
+  "hasForm.biomeTagSlugs",
+  "hasForm.biomeTag",
+  "hasForm.biomeTags",
+  "hasForm.spawnBucketIds",
+  "hasForm.spawnBucketId",
+  "hasForm.spawnBucketSlugs",
+  "hasForm.spawnBucket",
+  "hasForm.spawnBuckets",
+  "hpMin",
+  "hpMax",
+  "attackMin",
+  "attackMax",
+  "defenseMin",
+  "defenseMax",
+  "specialAttackMin",
+  "specialAttackMax",
+  "specialDefenseMin",
+  "specialDefenseMax",
+  "speedMin",
+  "speedMax",
+  "totalStatsMin",
+  "totalStatsMax",
+  "heightMin",
+  "heightMax",
+  "weightMin",
+  "weightMax",
+  "catchRateMin",
+  "catchRateMax",
+  "baseFriendshipMin",
+  "baseFriendshipMax",
+  "eggCyclesMin",
+  "eggCyclesMax",
+  "maleRatioMin",
+  "maleRatioMax",
+  "baseExperienceYieldMin",
+  "baseExperienceYieldMax",
+  "limit",
+  "offset",
+] as const;
+
+export type PokemonSearchQueryKey =
+  (typeof PokemonSearchQueryKeys)[number];
+
+export const PokemonIncludeQuerySchema = Type.Union([
+  Type.String(),
+  Type.Array(Type.String()),
+]);
+export type PokemonIncludeQuery = Static<typeof PokemonIncludeQuerySchema>;
+
+const PokemonBaseSearchQuerySchema = Type.Object(
+  {
+    include: Type.Optional(PokemonIncludeQuerySchema),
+    name: Type.Optional(Type.String()),
+
+    speciesIds: Type.Optional(IdOrSlugList),
+    speciesId: Type.Optional(IdOrSlug),
+    speciesSlugs: Type.Optional(StringOrStringArray),
+    speciesSlug: Type.Optional(Type.String()),
+    species: Type.Optional(StringOrStringArray),
+
+    formIds: Type.Optional(IdOrSlugList),
+    formSlugs: Type.Optional(StringOrStringArray),
+
+    typeIds: Type.Optional(IdOrSlugList),
+    typeSlugs: Type.Optional(StringOrStringArray),
+    abilityIds: Type.Optional(IdOrSlugList),
+    abilitySlugs: Type.Optional(StringOrStringArray),
+    moveIds: Type.Optional(IdOrSlugList),
+    moveSlugs: Type.Optional(StringOrStringArray),
+    eggGroupIds: Type.Optional(IdOrSlugList),
+    eggGroupSlugs: Type.Optional(StringOrStringArray),
+    labelIds: Type.Optional(IdOrSlugList),
+    labelSlugs: Type.Optional(StringOrStringArray),
+    dropItemIds: Type.Optional(IdOrSlugList),
+    dropItemSlugs: Type.Optional(StringOrStringArray),
+    biomeIds: Type.Optional(IdOrSlugList),
+    biomeSlugs: Type.Optional(StringOrStringArray),
+    biomeTagIds: Type.Optional(IdOrSlugList),
+    biomeTagSlugs: Type.Optional(StringOrStringArray),
+    spawnBucketIds: Type.Optional(IdOrSlugList),
+    spawnBucketSlugs: Type.Optional(StringOrStringArray),
+
+    speciesGeneration: Type.Optional(NumericValue),
+    generation: Type.Optional(NumericValue),
+    speciesGenerations: Type.Optional(NumericList),
+    generations: Type.Optional(NumericList),
+    formGeneration: Type.Optional(NumericValue),
+    formGenerations: Type.Optional(NumericList),
+
+    "hasForm.typeIds": Type.Optional(IdOrSlugList),
+    "hasForm.typeId": Type.Optional(IdOrSlug),
+    "hasForm.typeSlugs": Type.Optional(StringOrStringArray),
+    "hasForm.type": Type.Optional(StringOrStringArray),
+    "hasForm.types": Type.Optional(StringOrStringArray),
+    "hasForm.abilityIds": Type.Optional(IdOrSlugList),
+    "hasForm.abilityId": Type.Optional(IdOrSlug),
+    "hasForm.abilitySlugs": Type.Optional(StringOrStringArray),
+    "hasForm.ability": Type.Optional(StringOrStringArray),
+    "hasForm.abilities": Type.Optional(StringOrStringArray),
+    "hasForm.moveIds": Type.Optional(IdOrSlugList),
+    "hasForm.moveId": Type.Optional(IdOrSlug),
+    "hasForm.moveSlugs": Type.Optional(StringOrStringArray),
+    "hasForm.move": Type.Optional(StringOrStringArray),
+    "hasForm.moves": Type.Optional(StringOrStringArray),
+    "hasForm.labelIds": Type.Optional(IdOrSlugList),
+    "hasForm.labelId": Type.Optional(IdOrSlug),
+    "hasForm.labelSlugs": Type.Optional(StringOrStringArray),
+    "hasForm.label": Type.Optional(StringOrStringArray),
+    "hasForm.labels": Type.Optional(StringOrStringArray),
+    "hasForm.dropItemIds": Type.Optional(IdOrSlugList),
+    "hasForm.dropItemId": Type.Optional(IdOrSlug),
+    "hasForm.dropItemSlugs": Type.Optional(StringOrStringArray),
+    "hasForm.dropItem": Type.Optional(StringOrStringArray),
+    "hasForm.dropItems": Type.Optional(StringOrStringArray),
+    "hasForm.biomeIds": Type.Optional(IdOrSlugList),
+    "hasForm.biomeId": Type.Optional(IdOrSlug),
+    "hasForm.biomeSlugs": Type.Optional(StringOrStringArray),
+    "hasForm.biome": Type.Optional(StringOrStringArray),
+    "hasForm.biomes": Type.Optional(StringOrStringArray),
+    "hasForm.biomeTagIds": Type.Optional(IdOrSlugList),
+    "hasForm.biomeTagId": Type.Optional(IdOrSlug),
+    "hasForm.biomeTagSlugs": Type.Optional(StringOrStringArray),
+    "hasForm.biomeTag": Type.Optional(StringOrStringArray),
+    "hasForm.biomeTags": Type.Optional(StringOrStringArray),
+    "hasForm.spawnBucketIds": Type.Optional(IdOrSlugList),
+    "hasForm.spawnBucketId": Type.Optional(IdOrSlug),
+    "hasForm.spawnBucketSlugs": Type.Optional(StringOrStringArray),
+    "hasForm.spawnBucket": Type.Optional(StringOrStringArray),
+    "hasForm.spawnBuckets": Type.Optional(StringOrStringArray),
+
+    hpMin: Type.Optional(StatBound),
+    hpMax: Type.Optional(StatBound),
+    attackMin: Type.Optional(StatBound),
+    attackMax: Type.Optional(StatBound),
+    defenseMin: Type.Optional(StatBound),
+    defenseMax: Type.Optional(StatBound),
+    specialAttackMin: Type.Optional(StatBound),
+    specialAttackMax: Type.Optional(StatBound),
+    specialDefenseMin: Type.Optional(StatBound),
+    specialDefenseMax: Type.Optional(StatBound),
+    speedMin: Type.Optional(StatBound),
+    speedMax: Type.Optional(StatBound),
+    totalStatsMin: Type.Optional(StatBound),
+    totalStatsMax: Type.Optional(StatBound),
+    heightMin: Type.Optional(StatBound),
+    heightMax: Type.Optional(StatBound),
+    weightMin: Type.Optional(StatBound),
+    weightMax: Type.Optional(StatBound),
+    catchRateMin: Type.Optional(StatBound),
+    catchRateMax: Type.Optional(StatBound),
+    baseFriendshipMin: Type.Optional(StatBound),
+    baseFriendshipMax: Type.Optional(StatBound),
+    eggCyclesMin: Type.Optional(StatBound),
+    eggCyclesMax: Type.Optional(StatBound),
+    maleRatioMin: Type.Optional(StatBound),
+    maleRatioMax: Type.Optional(StatBound),
+    baseExperienceYieldMin: Type.Optional(StatBound),
+    baseExperienceYieldMax: Type.Optional(StatBound),
+
+    limit: Type.Optional(StatBound),
+    offset: Type.Optional(StatBound),
+  },
+  { additionalProperties: true },
+);
+
+export const PokemonSpeciesListQuerySchema = PokemonBaseSearchQuerySchema;
+export type PokemonSpeciesListQuery = Static<
+  typeof PokemonSpeciesListQuerySchema
+>;
+
+export const PokemonFormListQuerySchema = PokemonBaseSearchQuerySchema;
+export type PokemonFormListQuery = Static<typeof PokemonFormListQuerySchema>;
+
+export const PokemonSpeciesDetailQuerySchema = Type.Object(
+  {
+    include: Type.Optional(PokemonIncludeQuerySchema),
+  },
+  { additionalProperties: true },
+);
+export type PokemonSpeciesDetailQuery = Static<
+  typeof PokemonSpeciesDetailQuerySchema
+>;
+
+export const PokemonFormDetailQuerySchema = Type.Object(
+  {
+    include: Type.Optional(PokemonIncludeQuerySchema),
+  },
+  { additionalProperties: true },
+);
+export type PokemonFormDetailQuery = Static<
+  typeof PokemonFormDetailQuerySchema
+>;

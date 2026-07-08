@@ -1,6 +1,6 @@
 {
   "name": "@aglaea/contract",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Shared TypeBox contracts for Aglaea and Herta.",
   "type": "module",
   "license": "UNLICENSED",
