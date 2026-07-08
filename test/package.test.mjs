@@ -865,6 +865,11 @@ const spawnCondition = {
 
 const spawn = {
   id: 1,
+  spawnKey: "bulbasaur-1",
+  spawnPool: {
+    path: "spawn_pool_world/0001_bulbasaur",
+    resourceKind: "spawn_pool_world",
+  },
   bucket: namedSpawnRef,
   positionType: namedSpawnRef,
   weight: 0.5,
@@ -1139,6 +1144,29 @@ test("PokemonSpawnSchema validates a full spawn with named refs", () => {
     Value.Check(PokemonSpawnSchema, {
       ...spawn,
       bucket: { id: 1, name: "plains" },
+    }),
+    false,
+  );
+});
+
+test("PokemonSpawnSchema requires source spawn identity", () => {
+  const { spawnKey, ...spawnWithoutKey } = spawn;
+  assert.equal(Value.Check(PokemonSpawnSchema, spawnWithoutKey), false);
+
+  assert.equal(
+    Value.Check(PokemonSpawnSchema, {
+      ...spawn,
+      spawnPool: { path: "spawn_pool_world/0001_bulbasaur" },
+    }),
+    false,
+  );
+  assert.equal(
+    Value.Check(PokemonSpawnSchema, {
+      ...spawn,
+      spawnPool: {
+        path: "",
+        resourceKind: "spawn_pool_world",
+      },
     }),
     false,
   );

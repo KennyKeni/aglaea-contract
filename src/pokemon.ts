@@ -285,8 +285,17 @@ export const PokemonSpawnConditionSchema = Type.Object({
 
 export type PokemonSpawnCondition = Static<typeof PokemonSpawnConditionSchema>;
 
+export const PokemonSpawnPoolSchema = Type.Object({
+  path: Type.String({ minLength: 1 }),
+  resourceKind: Type.String({ minLength: 1 }),
+});
+
+export type PokemonSpawnPool = Static<typeof PokemonSpawnPoolSchema>;
+
 export const PokemonSpawnSchema = Type.Object({
   id: Type.Integer(),
+  spawnKey: Type.String({ minLength: 1 }),
+  spawnPool: PokemonSpawnPoolSchema,
   bucket: PokemonSpawnReferenceSchema,
   positionType: PokemonSpawnReferenceSchema,
   weight: Type.Number(),
