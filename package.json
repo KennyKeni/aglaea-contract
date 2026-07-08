@@ -1,0 +1,47 @@
+{
+  "name": "@aglaea/contract",
+  "version": "0.1.0",
+  "description": "Shared TypeBox contracts for Aglaea and Herta.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "private": false,
+  "packageManager": "npm@11.16.0",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KennyKeni/aglaea-contract.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./pokemon": {
+      "types": "./dist/pokemon.d.ts",
+      "import": "./dist/pokemon.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "module": "./dist/index.js",
+  "scripts": {
+    "build": "tsgo --project tsconfig.json",
+    "clean": "rm -rf dist",
+    "pack:dry-run": "npm pack --dry-run",
+    "prepack": "npm run clean && npm run build",
+    "publish:public": "npm publish --access public",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.49"
+  },
+  "devDependencies": {
+    "@typescript/native-preview": "^7.0.0-dev.20260619.1"
+  }
+}
