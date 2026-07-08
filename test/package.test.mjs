@@ -5,7 +5,10 @@ import {
   PokemonFormListResponseSchema,
   PokemonSpeciesListResponseSchema,
 } from "@aglaea/contract";
-import { PokemonSpeciesDetailResponseSchema } from "@aglaea/contract/pokemon";
+import {
+  PokemonSpeciesDetailResponseSchema,
+  PokemonDropRangeSchema,
+} from "@aglaea/contract/pokemon";
 
 test("package-name exports expose Pokemon response schemas", () => {
   assert.equal(
@@ -29,4 +32,24 @@ test("package-name exports expose Pokemon response schemas", () => {
   );
 
   assert.equal(PokemonSpeciesDetailResponseSchema.type, "object");
+});
+
+test("PokemonDropRangeSchema requires percentage for ranged drops", () => {
+  const rangeWithPercentage = {
+    item: { id: 109, name: "glow-ink-sac" },
+    percentage: 10,
+    quantityMin: 1,
+    quantityMax: 3,
+  };
+
+  assert.equal(
+    Value.Check(PokemonDropRangeSchema, rangeWithPercentage),
+    true,
+  );
+
+  const { percentage, ...rangeWithoutPercentage } = rangeWithPercentage;
+  assert.equal(
+    Value.Check(PokemonDropRangeSchema, rangeWithoutPercentage),
+    false,
+  );
 });
