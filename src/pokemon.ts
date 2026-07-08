@@ -199,10 +199,7 @@ export const PokemonBehaviourSchema = Type.Object({
 
 export type PokemonBehaviour = Static<typeof PokemonBehaviourSchema>;
 
-export const PokemonSpawnReferenceSchema = Type.Object({
-  id: Type.Integer(),
-  name: Type.String(),
-});
+export const PokemonSpawnReferenceSchema = PokemonNamedRefSchema;
 
 export type PokemonSpawnReference = Static<typeof PokemonSpawnReferenceSchema>;
 

@@ -192,5 +192,8 @@ This first read-domain slice is intentionally narrow. Query schemas, include voc
 ## Current first-slice notes
 
 - Species images are nullable; presence is per species.
-- Form images are nullable and deferred. Do not rely on form image refs yet.
+- Form image refs are part of the enriched form detail payload (nullable). Use the form `image` ref where Herta emits one.
 - Drops are item refs `{ id, name }`; ranged drops keep `percentage`.
+- Embedded spawn refs (`bucket`, `positionType`, and spawn-condition `biomes`/`biomeTags`/`timeRanges`/`moonPhases`) require a `slug`. Use `PokemonNamedRefSchema`-shaped refs `{ id, name, slug }`; refs missing `slug` fail validation.
+- `PokemonSpeciesRidingSchema` and `PokemonBehaviourSchema` remain opaque `{ data: unknown }` envelopes for now; they require `data` but do not model nested keys yet.
+- `PokemonSpeciesDetailResponseSchema` accepts alternate forms plus nullable gameplay/visual sections (`image`, `hitbox`, `lighting`, `riding` may be `null`).
