@@ -186,6 +186,13 @@ export const PokemonFormHitboxSchema = Type.Object({
 
 export type PokemonFormHitbox = Static<typeof PokemonFormHitboxSchema>;
 
+export const PokemonFormLightingSchema = Type.Object({
+  lightLevel: Type.Integer(),
+  liquidGlowMode: Nullable(Type.String()),
+});
+
+export type PokemonFormLighting = Static<typeof PokemonFormLightingSchema>;
+
 export const PokemonFormAspectComboSchema = Type.Object({
   comboIndex: Type.Integer(),
   aspects: Type.Array(PokemonAspectRefSchema),
@@ -298,6 +305,7 @@ export const PokemonFormSchema = Type.Object({
   abilities: Type.Array(PokemonFormAbilitySchema),
   moves: Type.Array(PokemonFormMoveSchema),
   hitbox: Nullable(PokemonFormHitboxSchema),
+  lighting: Nullable(PokemonFormLightingSchema),
   drops: Nullable(PokemonFormDropsSchema),
   aspectCombos: Type.Array(PokemonFormAspectComboSchema),
   behaviour: Nullable(PokemonBehaviourSchema),

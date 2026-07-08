@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { Value } from "@sinclair/typebox/value";
 import {
+  PokemonFormLightingSchema as RootPokemonFormLightingSchema,
   PokemonFormListResponseSchema,
   PokemonFormListQuerySchema,
   PokemonFormDetailQuerySchema,
@@ -25,6 +26,7 @@ import {
   PokemonDropRangeSchema,
   PokemonFormDetailResponseSchema,
   PokemonFormDetailResponseSchema as PokemonFormDetailResponseSchemaFromPokemon,
+  PokemonFormLightingSchema,
   PokemonMoveRefSchema,
   PokemonSpawnConditionSchema,
   PokemonSpawnConditionLureSchema,
@@ -916,6 +918,7 @@ const enrichedFormDetail = {
   abilities: [formAbility],
   moves: [formMove],
   hitbox: { width: 0.7, height: 0.7, fixed: false },
+  lighting: null,
   drops: {
     amount: 1,
     percentages: [dropPercentage],
@@ -1077,6 +1080,81 @@ test("PokemonSpawnConditionSchema rejects condition refs missing slug", () => {
       ...spawnCondition,
       biomes: [{ id: 1, name: "plains" }],
     }),
+    false,
+  );
+});
+
+test("PokemonFormLightingSchema is exported from root and ./pokemon and mirrors species lighting shape", () => {
+  assert.equal(RootPokemonFormLightingSchema, PokemonFormLightingSchema);
+  assert.equal(PokemonFormLightingSchema.type, "object");
+
+  assert.equal(
+    Value.Check(PokemonFormLightingSchema, {
+      lightLevel: 14,
+      liquidGlowMode: "land",
+    }),
+    true,
+  );
+  assert.equal(
+    Value.Check(PokemonFormLightingSchema, {
+      lightLevel: 0,
+      liquidGlowMode: null,
+    }),
+    true,
+  );
+
+  assert.equal(
+    Value.Check(PokemonFormLightingSchema, { liquidGlowMode: "land" }),
+    false,
+  );
+  assert.equal(
+    Value.Check(PokemonFormLightingSchema, {
+      lightLevel: "14",
+      liquidGlowMode: "land",
+    }),
+    false,
+  );
+});
+
+test("PokemonFormDetailResponseSchema accepts an enriched form detail payload with form lighting", () => {
+  const formWithLighting = {
+    ...enrichedFormDetail,
+    lighting: { lightLevel: 14, liquidGlowMode: "land" },
+  };
+  assert.equal(
+    Value.Check(PokemonFormDetailResponseSchema, formWithLighting),
+    true,
+  );
+});
+
+test("PokemonFormDetailResponseSchema accepts a minimal form detail payload with lighting null", () => {
+  const minimalForm = {
+    ...enrichedFormDetail,
+    image: null,
+    hitbox: null,
+    drops: null,
+    behaviour: null,
+    lighting: null,
+  };
+  assert.equal(Value.Check(PokemonFormDetailResponseSchema, minimalForm), true);
+});
+
+test("PokemonFormDetailResponseSchema rejects invalid form lighting", () => {
+  const missingLightLevel = {
+    ...enrichedFormDetail,
+    lighting: { liquidGlowMode: "land" },
+  };
+  assert.equal(
+    Value.Check(PokemonFormDetailResponseSchema, missingLightLevel),
+    false,
+  );
+
+  const nonNumberLightLevel = {
+    ...enrichedFormDetail,
+    lighting: { lightLevel: "14", liquidGlowMode: "land" },
+  };
+  assert.equal(
+    Value.Check(PokemonFormDetailResponseSchema, nonNumberLightLevel),
     false,
   );
 });
