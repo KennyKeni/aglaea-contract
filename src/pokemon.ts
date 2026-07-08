@@ -163,6 +163,7 @@ export type PokemonDropPercentage = Static<typeof PokemonDropPercentageSchema>;
 
 export const PokemonDropRangeSchema = Type.Object({
   item: PokemonItemRefSchema,
+  percentage: Type.Number(),
   quantityMin: Type.Integer(),
   quantityMax: Type.Integer(),
 });
