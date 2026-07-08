@@ -1,6 +1,6 @@
 {
   "name": "@aglaea/contract",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Shared TypeBox contracts for Aglaea and Herta.",
   "type": "module",
   "license": "UNLICENSED",
@@ -26,6 +26,10 @@
     "./pokemon": {
       "types": "./dist/pokemon.d.ts",
       "import": "./dist/pokemon.js"
+    },
+    "./read-domain": {
+      "types": "./dist/read-domain.d.ts",
+      "import": "./dist/read-domain.js"
     }
   },
   "types": "./dist/index.d.ts",

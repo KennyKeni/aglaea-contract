@@ -37,8 +37,11 @@ Then use the GitHub workflow at `.github/workflows/publish.yml` for future relea
 
 - `@aglaea/contract`
 - `@aglaea/contract/pokemon`
+- `@aglaea/contract/read-domain`
 
 The first contract slice covers the Pokemon species/form response surface used by Herta's `/pokemon/species`, `/pokemon/species/:identifier`, `/pokemon/forms`, and `/pokemon/forms/:identifier` routes.
+
+The read-domain slice covers the retained Herta `/abilities`, `/moves`, and `/items` API responses. It models app-facing response shapes, not raw SQLite tables.
 
 ## Usage
 
@@ -149,6 +152,42 @@ Each sub-shape is also exported as its own schema and type (`PokemonSpawnConditi
 ### Move accuracy
 
 `PokemonMoveRefSchema.accuracy` is `number | null`. Herta maps embedded move accuracy booleans to `null` before returning endpoint data, so boolean accuracy is rejected by the contract.
+
+## Read-domain contracts
+
+`@aglaea/contract/read-domain` exposes retained TypeBox response schemas for Herta's `/abilities`, `/moves`, and `/items` routes. List responses reuse the Herta pagination envelope `{ data, total, limit, offset }`; detail responses return the bare entity.
+
+```ts
+import { Value } from "@sinclair/typebox/value";
+import {
+  AbilityListResponseSchema,
+  MoveDetailResponseSchema,
+  ItemListResponseSchema,
+  type AbilityListResponse,
+  type MoveDetailResponse,
+  type ItemListResponse,
+} from "@aglaea/contract/read-domain";
+
+const abilityList: AbilityListResponse = {
+  data: [],
+  total: 0,
+  limit: 20,
+  offset: 0,
+};
+
+Value.Check(AbilityListResponseSchema, abilityList); // true
+```
+
+Exported schemas and their `Static` types:
+
+- `AbilitySchema` / `Ability` — `{ id, name, slug, desc, shortDesc, flags, forms }`. `forms` items require `speciesId`.
+- `AbilityListResponseSchema` / `AbilityListResponse`, `AbilityDetailResponseSchema` / `AbilityDetailResponse`.
+- `MoveSchema` / `Move` — full retained move payload. `accuracy` is `number | boolean | null`; the embedded move ref used by Pokemon endpoints rejects booleans, but the retained move detail accepts them.
+- `MoveListResponseSchema` / `MoveListResponse`, `MoveDetailResponseSchema` / `MoveDetailResponse`.
+- `ItemSchema` / `Item` — `{ ..., implemented: boolean, boosts, flags, tags, recipes }`. `implemented` is a strict boolean; string values are rejected.
+- `ItemListResponseSchema` / `ItemListResponse`, `ItemDetailResponseSchema` / `ItemDetailResponse`.
+
+This first read-domain slice is intentionally narrow. Query schemas, include vocabularies, `/moves/categories`, and `/items/tags` list endpoints are deferred to later issues.
 
 ## Current first-slice notes
 

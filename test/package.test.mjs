@@ -14,6 +14,9 @@ import {
   PokemonSpeciesListResponseSchema,
   PokemonSpeciesListQuerySchema,
   PokemonSpeciesDetailQuerySchema,
+  AbilityListResponseSchema as RootAbilityListResponseSchema,
+  MoveDetailResponseSchema as RootMoveDetailResponseSchema,
+  ItemListResponseSchema as RootItemListResponseSchema,
 } from "@aglaea/contract";
 import {
   PokemonDropRangeSchema,
@@ -26,6 +29,17 @@ import {
   PokemonSpawnConditionWeatherSchema,
   PokemonSpeciesDetailResponseSchema,
 } from "@aglaea/contract/pokemon";
+import {
+  AbilityDetailResponseSchema,
+  AbilityListResponseSchema,
+  AbilitySchema,
+  ItemDetailResponseSchema,
+  ItemListResponseSchema,
+  ItemSchema,
+  MoveDetailResponseSchema,
+  MoveListResponseSchema,
+  MoveSchema,
+} from "@aglaea/contract/read-domain";
 
 test("package-name exports expose Pokemon response schemas", () => {
   assert.equal(
@@ -498,6 +512,273 @@ test("concrete spawn condition sub-schemas validate their intended shapes", () =
       minLureLevel: 1,
       maxLureLevel: 4,
     }),
+    true,
+  );
+});
+
+const abilityListItem = {
+  id: 4,
+  name: "Battle Armor",
+  slug: "battle-armor",
+  desc: null,
+  shortDesc: "This Pokemon cannot be struck by a critical hit.",
+  flags: [],
+  forms: [],
+};
+
+const abilityDetail = {
+  id: 4,
+  name: "Battle Armor",
+  slug: "battle-armor",
+  desc: null,
+  shortDesc: "This Pokemon cannot be struck by a critical hit.",
+  flags: [
+    {
+      id: 1,
+      name: "Breakable",
+      slug: "breakable",
+      description:
+        "Can be suppressed by Mold Breaker and similar abilities.",
+    },
+  ],
+  forms: [
+    { id: 208, name: "Kabuto", slug: "kabuto", speciesId: 140 },
+  ],
+};
+
+const moveListItem = {
+  id: 1,
+  name: "Pound",
+  slug: "pound",
+  desc: null,
+  shortDesc: "No additional effect.",
+  type: { id: 13, name: "Normal", slug: "normal" },
+  category: {
+    id: 1,
+    slug: "physical",
+    name: "Physical",
+    description: "Move deals damage with the Attack and Defense stats.",
+  },
+  target: {
+    id: 12,
+    name: "Normal",
+    slug: "normal",
+    description: "Targets a single adjacent Pokemon (default).",
+  },
+  power: 40,
+  accuracy: 100,
+  pp: 35,
+  priority: 0,
+  critRatio: null,
+  minHits: null,
+  maxHits: null,
+  drainPercent: null,
+  healPercent: null,
+  recoilPercent: null,
+  flags: [],
+  boosts: [],
+  effects: [],
+  maxPower: null,
+  zData: null,
+  gmaxSpecies: [],
+  forms: [],
+};
+
+const moveDetail = {
+  id: 14,
+  name: "Swords Dance",
+  slug: "swords-dance",
+  desc: "Raises the user's Attack by 2 stages.",
+  shortDesc: "Raises the user's Attack by 2.",
+  type: { id: 13, name: "Normal", slug: "normal" },
+  category: {
+    id: 3,
+    slug: "status",
+    name: "Status",
+    description: "Move does not deal damage.",
+  },
+  target: {
+    id: 15,
+    name: "Self",
+    slug: "self",
+    description: "Targets the user only.",
+  },
+  power: 0,
+  accuracy: true,
+  pp: 20,
+  priority: 0,
+  critRatio: null,
+  minHits: null,
+  maxHits: null,
+  drainPercent: null,
+  healPercent: null,
+  recoilPercent: null,
+  flags: [],
+  boosts: [
+    {
+      stat: { id: 2, slug: "attack", name: "Attack" },
+      stages: 2,
+      isSelf: true,
+    },
+  ],
+  effects: [],
+  maxPower: null,
+  zData: {
+    zPower: null,
+    zEffect: "clearnegativeboost",
+    zCrystal: null,
+    isZExclusive: false,
+  },
+  gmaxSpecies: [],
+  forms: [],
+};
+
+const itemListItem = {
+  id: 2,
+  slug: "ability-capsule",
+  name: "Ability Capsule",
+  num: null,
+  desc: null,
+  shortDesc: null,
+  generation: null,
+  namespace: { id: 8, slug: "cobblemon", name: "Cobblemon" },
+  implemented: true,
+  boosts: [],
+  flags: [],
+  tags: [{ id: 1, slug: "ability-changers", name: "Ability Changers" }],
+  recipes: [],
+};
+
+const itemDetail = {
+  id: 5,
+  slug: "absorb-bulb",
+  name: "Absorb Bulb",
+  num: 545,
+  desc: null,
+  shortDesc:
+    "Raises holder's Sp. Atk by 1 stage if hit by a Water-type attack. Single use.",
+  generation: 5,
+  namespace: { id: 8, slug: "cobblemon", name: "Cobblemon" },
+  implemented: true,
+  boosts: [
+    {
+      stat: { id: 4, slug: "special-attack", name: "Special Attack" },
+      stages: 1,
+    },
+  ],
+  flags: [],
+  tags: [{ id: 70, slug: "held-is-held-item", name: "Held > Is Held Item" }],
+  recipes: [],
+};
+
+const paginated = (data, total, limit = 20, offset = 0) => ({
+  data,
+  total,
+  limit,
+  offset,
+});
+
+test("read-domain subpath exports ability, move, and item list/detail schemas", () => {
+  assert.equal(AbilitySchema.type, "object");
+  assert.equal(MoveSchema.type, "object");
+  assert.equal(ItemSchema.type, "object");
+
+  assert.equal(AbilityListResponseSchema.type, "object");
+  assert.equal(AbilityDetailResponseSchema.type, "object");
+  assert.equal(MoveListResponseSchema.type, "object");
+  assert.equal(MoveDetailResponseSchema.type, "object");
+  assert.equal(ItemListResponseSchema.type, "object");
+  assert.equal(ItemDetailResponseSchema.type, "object");
+
+  assert.equal(RootAbilityListResponseSchema.type, "object");
+  assert.equal(RootMoveDetailResponseSchema.type, "object");
+  assert.equal(RootItemListResponseSchema.type, "object");
+});
+
+test("AbilityListResponseSchema and AbilityDetailResponseSchema accept retained payloads", () => {
+  assert.equal(
+    Value.Check(AbilityListResponseSchema, paginated([abilityListItem], 1)),
+    true,
+  );
+  assert.equal(
+    Value.Check(AbilityListResponseSchema, {
+      data: [],
+      total: 0,
+      limit: 20,
+      offset: 0,
+    }),
+    true,
+  );
+  assert.equal(Value.Check(AbilityDetailResponseSchema, abilityDetail), true);
+});
+
+test("MoveListResponseSchema and MoveDetailResponseSchema accept retained payloads", () => {
+  assert.equal(
+    Value.Check(MoveListResponseSchema, paginated([moveListItem], 1, 1, 0)),
+    true,
+  );
+  assert.equal(Value.Check(MoveDetailResponseSchema, moveDetail), true);
+});
+
+test("ItemListResponseSchema and ItemDetailResponseSchema accept retained payloads", () => {
+  assert.equal(
+    Value.Check(ItemListResponseSchema, paginated([itemListItem], 1)),
+    true,
+  );
+  assert.equal(Value.Check(ItemDetailResponseSchema, itemDetail), true);
+});
+
+test("MoveSchema accepts number, boolean, and null accuracy", () => {
+  assert.equal(
+    Value.Check(MoveSchema, { ...moveDetail, accuracy: 100 }),
+    true,
+  );
+  assert.equal(
+    Value.Check(MoveSchema, { ...moveDetail, accuracy: 99.5 }),
+    true,
+  );
+  assert.equal(
+    Value.Check(MoveSchema, { ...moveDetail, accuracy: true }),
+    true,
+  );
+  assert.equal(
+    Value.Check(MoveSchema, { ...moveDetail, accuracy: false }),
+    true,
+  );
+  assert.equal(
+    Value.Check(MoveSchema, { ...moveDetail, accuracy: null }),
+    true,
+  );
+});
+
+test("MoveSchema rejects string accuracy such as 'true'", () => {
+  assert.equal(
+    Value.Check(MoveSchema, { ...moveDetail, accuracy: "true" }),
+    false,
+  );
+});
+
+test("ItemSchema rejects string implemented such as 'yes'", () => {
+  assert.equal(
+    Value.Check(ItemSchema, { ...itemDetail, implemented: "yes" }),
+    false,
+  );
+  assert.equal(
+    Value.Check(ItemSchema, { ...itemDetail, implemented: false }),
+    true,
+  );
+});
+
+test("AbilitySchema rejects a form reference missing speciesId when forms are present", () => {
+  const brokenForm = { id: 208, name: "Kabuto", slug: "kabuto" };
+  assert.equal(
+    Value.Check(AbilitySchema, { ...abilityDetail, forms: [brokenForm] }),
+    false,
+  );
+
+  const validForm = { ...brokenForm, speciesId: 140 };
+  assert.equal(
+    Value.Check(AbilitySchema, { ...abilityDetail, forms: [validForm] }),
     true,
   );
 });
